@@ -1,7 +1,8 @@
 NAME = server
 SRC = main.cpp \
 	Server.cpp \
-	Session.cpp
+	Session.cpp \
+	Parser.cpp
 
 OBJ = $(SRC:.cpp=.o)
 

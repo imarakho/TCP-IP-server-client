@@ -6,7 +6,7 @@
       deadline_(io_service),
       heartbeat_timer_(io_service)
     {
-        req = generate_data(1000);
+        req = generate_data(DATA_SIZE);
     }
 
   void client::start(tcp::resolver::iterator endpoint_iter)
@@ -80,7 +80,10 @@
       std::getline(is, line);
       if (!line.empty())
       {
-        std::cout << "\033[1;32m" << "Received: " << line << "\033[0m" << "\n";
+        if (line.find("AVARIA") != std::string::npos)
+          std::cout << "\033[0;31mAVARIA" << std::endl;
+        else
+          std::cout << "\033[0;36m" << "Received: " << "\033[1;32m" << line << "\033[0m" << "\n";
       }
       start_read();
     }
@@ -92,15 +95,13 @@
   }
 std::string   client::generate_data(int len)
 {
-        srand(time(0));
-        char *data = (char *)malloc(len * sizeof(char) + 1);
-         static const char alphanum[] =
-        "0123456789"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz";
-
-    for (int i = 0; i < len; ++i) 
-        data[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
+    srand(time(0));
+    char *data = (char *)malloc(len * sizeof(char) + 1);
+    for (int i = 0; i < len; i++) 
+    {
+        data[i] = rand() % 127;
+        data[i] == 0 ? data[i] = -1 : 0;
+    }
     data[len] = '\0';
     std::string ret = data;
     return ret;
@@ -119,7 +120,6 @@ std::string   client::generate_data(int len)
 
   void client::handle_write(const boost::system::error_code& ec)
   {
-      std::string req = generate_data(DATA_SIZE);
     if (stopped_)
       return;
 
